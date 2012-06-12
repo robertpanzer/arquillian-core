@@ -32,6 +32,7 @@ public class DeploymentDescription
    private boolean managed = true;
    private int order = 0;
    private boolean testable = true;
+   private String archiveForEnrichment;
    
    private TargetDescription target = TargetDescription.DEFAULT;
    private ProtocolDescription protocol= ProtocolDescription.DEFAULT;
@@ -130,6 +131,19 @@ public class DeploymentDescription
    {
       this.managed = startup;
       return this;
+   }
+   
+   
+   public String getArchiveForEnrichment() {
+       if ("".equals(archiveForEnrichment)) {
+           return null;
+       }
+       return archiveForEnrichment;
+   }
+   
+   public DeploymentDescription archiveForEnrichment(String archiveForEnrichment) {
+       this.archiveForEnrichment = archiveForEnrichment;
+       return this;
    }
    
    /**

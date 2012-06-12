@@ -109,7 +109,9 @@ public class AnnotationDeploymentScenarioGenerator implements DeploymentScenario
       {
          deployment.setProtocol(protocol);
       }
-      
+      if (!"".equals(deploymentAnnotation.archiveForEnrichment())) {
+          deployment.archiveForEnrichment(deploymentAnnotation.archiveForEnrichment());
+      }
       if(deploymentMethod.isAnnotationPresent(ShouldThrowException.class))
       {
          deployment.setExpectedException(deploymentMethod.getAnnotation(ShouldThrowException.class).value());

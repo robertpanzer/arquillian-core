@@ -81,4 +81,9 @@ public @interface Deployment
     * @return
     */
    boolean testable() default true;
+   
+   
+   String archiveForEnrichment() default "";
+   
+   
 }

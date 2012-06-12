@@ -62,7 +62,7 @@ public class ServletProtocolDeploymentPackager implements DeploymentPackager
       
       if(EnterpriseArchive.class.isInstance(applicationArchive))
       {
-         return handleArchive(EnterpriseArchive.class.cast(applicationArchive), auxiliaryArchives, protocol, processor);
+         return handleArchive(EnterpriseArchive.class.cast(applicationArchive), auxiliaryArchives, protocol, processor, testDeployment);
       } 
 
       if(WebArchive.class.isInstance(applicationArchive))
@@ -104,7 +104,7 @@ public class ServletProtocolDeploymentPackager implements DeploymentPackager
             processor);
    }
 
-   private Archive<?> handleArchive(EnterpriseArchive applicationArchive, Collection<Archive<?>> auxiliaryArchives, JavaArchive protocol, Processor processor) 
+   private Archive<?> handleArchive(EnterpriseArchive applicationArchive, Collection<Archive<?>> auxiliaryArchives, JavaArchive protocol, Processor processor, TestDeployment testDeployment) 
    {
       Map<ArchivePath, Node> applicationArchiveWars = applicationArchive.getContent(Filters.include(".*\\.war"));
       if(applicationArchiveWars.size() == 1)
@@ -125,8 +125,26 @@ public class ServletProtocolDeploymentPackager implements DeploymentPackager
       }
       else if(applicationArchiveWars.size() > 1)
       {
-         // TODO: fetch the TestDeployment.getArchiveForEnrichment
-         throw new UnsupportedOperationException("Multiple WebArchives found in " + applicationArchive.getName() + ". Can not determine which to enrich");
+          Archive<?> archive = testDeployment.getArchiveForEnrichment();
+          if (archive == null) {
+              throw new UnsupportedOperationException("Multiple WebArchives found in " + applicationArchive.getName() + ". Can not determine which to enrich");
+          } 
+          try
+          {
+             handleArchive(
+                   (WebArchive)archive, 
+                   new ArrayList<Archive<?>>(), // reuse the War handling, but Auxiliary Archives should be added to the EAR, not the WAR 
+                   protocol,
+                   processor);
+          }
+          catch (ClassCastException e) 
+          {
+             throw new IllegalArgumentException("Can not manipulate war's that are not of type " + WebArchive.class, e);
+          }
+          catch (IllegalArgumentException e) 
+          {
+             throw new IllegalArgumentException("Can not manipulate war's that are not of type " + WebArchive.class, e);
+          }
       }
       else
       {

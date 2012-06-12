@@ -22,6 +22,9 @@ import org.jboss.arquillian.container.spi.client.deployment.DeploymentDescriptio
 import org.jboss.arquillian.container.spi.client.deployment.TargetDescription;
 import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.Node;
+import org.jboss.shrinkwrap.api.asset.ArchiveAsset;
+import org.jboss.shrinkwrap.api.asset.Asset;
 
 /**
  * Value object that contains the {@link Archive}s needed for deployment. <br/>
@@ -87,12 +90,19 @@ public class TestDeployment
 
    /**
     * Convenience method to lookup the user tagged archive for enriching.
-    * @return The tagged Archive or ApplicationArchive if none are tagged
+    * @return The tagged Archive or null if none are tagged
     */
    public Archive<?> getArchiveForEnrichment() 
    {
-      // TODO: lookup 'tagged' archive. return applicationArchive if none found
-      return applicationArchive;
+      if (deploymentDescription.getArchiveForEnrichment() != null) {
+          if (!applicationArchive.contains(deploymentDescription.getArchiveForEnrichment())) {
+              throw new IllegalArgumentException("Application does not contain the archive "+deploymentDescription.getArchiveForEnrichment()+" that is to be enriched.");
+          }
+          Node n = applicationArchive.get(deploymentDescription.getArchiveForEnrichment());
+          ArchiveAsset asset = (ArchiveAsset) n.getAsset();
+          return asset.getArchive();
+      }
+      return null;
    }
 
    public Archive<?> getApplicationArchive()
